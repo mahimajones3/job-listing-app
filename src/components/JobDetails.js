@@ -1,17 +1,39 @@
-import React from 'react';
-import { useLocation } from 'react-router-dom';
-import './JobDetails.css';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useParams } from 'react-router-dom';
 
 const JobDetails = () => {
-  const { state: job } = useLocation();
+  const { jobId } = useParams(); // Assume the job ID is passed in the route
+  const [jobDetails, setJobDetails] = useState(null); // Store job details
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchJobDetails = async () => {
+      setLoading(true);
+      try {
+        // API call to fetch job details by job ID
+        const response = await axios.get(`https://api.example.com/jobs/${jobId}`);
+        setJobDetails(response.data);
+      } catch (err) {
+        setError('Failed to load job details.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchJobDetails();
+  }, [jobId]);
+
+  if (loading) return <p>Loading job details...</p>;
+  if (error) return <p>{error}</p>;
 
   return (
-    <div className="job-details">
-      <h2>{job.title}</h2>
-      <p>Location: {job.location}</p>
-      <p>Salary: {job.salary}</p>
-      <p>Phone: {job.phone}</p>
-      <p>Description: {job.description}</p>
+    <div>
+      <h2>{jobDetails.title}</h2>
+      <p>Location: {jobDetails.location}</p>
+      <p>Salary: {jobDetails.salary}</p>
+      <p>Phone: {jobDetails.phone}</p>
     </div>
   );
 };
